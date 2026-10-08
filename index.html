@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Independent Bookstore Events - A fast, accessible, offline-friendly event management dashboard for bookstore staff.">
+  <title>Independent Bookstore Events | Staff Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Accessible skip navigation for keyboard and screen reader users -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <header class="app-header" role="banner">
+    <div class="container header-container">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">&#9997;</div>
+        <div>
+          <h1 class="brand-title">Chapter &amp; Verse Booksellers</h1>
+          <p class="brand-subtitle">Independent Bookstore Events Board &bull; Staff Desk</p>
+        </div>
+      </div>
+      <div class="header-status">
+        <span class="badge" id="storageBadge">Local Storage Synced</span>
+        <span class="badge badge-outline" id="activeCounter" aria-live="polite">0 upcoming events</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Global announcements and live status updates -->
+  <div class="container">
+    <div id="liveFeedback" class="live-feedback" role="status" aria-live="polite"></div>
+  </div>
+
+  <main id="main-content" class="container main-layout">
+    <!-- Left Column: Add Event Form -->
+    <section class="panel form-panel" aria-labelledby="formHeading">
+      <div class="panel-header">
+        <h2 id="formHeading" class="panel-title">Add New Event</h2>
+        <p class="panel-desc">Schedule a reading, signing, book club, or workshop.</p>
+      </div>
+
+      <form id="eventForm" class="event-form" novalidate>
+        <div class="form-group">
+          <label for="eventTitle">Event Title <span class="required" aria-hidden="true">*</span></label>
+          <input 
+            type="text" 
+            id="eventTitle" 
+            name="title" 
+            placeholder="e.g., Midnight Poetry &amp; Acoustic Set" 
+            required
+            aria-required="true"
+            aria-describedby="titleError"
+          >
+          <span id="titleError" class="field-error" aria-live="polite"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="eventAuthor">Author / Host <span class="required" aria-hidden="true">*</span></label>
+          <input 
+            type="text" 
+            id="eventAuthor" 
+            name="author" 
+            placeholder="e.g., Zadie Smith or Local Guild" 
+            required
+            aria-required="true"
+            aria-describedby="authorError"
+          >
+          <span id="authorError" class="field-error" aria-live="polite"></span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="eventDate">Date <span class="required" aria-hidden="true">*</span></label>
+            <input 
+              type="date" 
+              id="eventDate" 
+              name="date" 
+              required
+              aria-required="true"
+              aria-describedby="dateError"
+            >
+            <span id="dateError" class="field-error" aria-live="polite"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="eventTime">Time <span class="required" aria-hidden="true">*</span></label>
+            <input 
+              type="time" 
+              id="eventTime" 
+              name="time" 
+              required
+              aria-required="true"
+              aria-describedby="timeError"
+            >
+            <span id="timeError" class="field-error" aria-live="polite"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="eventLocation">Location / Area <span class="required" aria-hidden="true">*</span></label>
+          <input 
+            type="text" 
+            id="eventLocation" 
+            name="location" 
+            placeholder="e.g., Main Floor, The Nook, Courtyard" 
+            required
+            aria-required="true"
+            aria-describedby="locationError"
+          >
+          <span id="locationError" class="field-error" aria-live="polite"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="eventDescription">Description <span class="optional">(Optional)</span></label>
+          <textarea 
+            id="eventDescription" 
+            name="description" 
+            rows="3" 
+            placeholder="Provide context, audience capacity, book titles, or special notes..."
+            aria-describedby="descHelp"
+          ></textarea>
+          <span id="descHelp" class="field-help">Brief details for staff and customers (max 400 chars).</span>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" id="submitBtn" class="btn btn-primary">
+            <span class="btn-icon" aria-hidden="true">+</span> Add Event
+          </button>
+          <button type="button" id="resetFormBtn" class="btn btn-secondary">
+            Clear Form
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Right Column: Search, Filter, and Event List -->
+    <section class="panel list-panel" aria-labelledby="listHeading">
+      <div class="panel-header list-header">
+        <div>
+          <h2 id="listHeading" class="panel-title">Upcoming Bookstore Events</h2>
+          <p class="panel-desc">Floor staff directory for upcoming literary gatherings.</p>
+        </div>
+        <button type="button" id="seedDataBtn" class="btn btn-subtle" title="Reload default bookstore sample events">
+          Reset Demo Events
+        </button>
+      </div>
+
+      <!-- Search Controls -->
+      <div class="search-toolbar" role="search">
+        <div class="search-input-wrapper">
+          <label for="searchInput" class="visually-hidden">Search bookstore events</label>
+          <input 
+            type="search" 
+            id="searchInput" 
+            placeholder="Search by title, author, location, or keyword..." 
+            autocomplete="off"
+            aria-label="Search events by title, author, location or description"
+          >
+          <button type="button" id="clearSearchBtn" class="clear-search-btn" aria-label="Clear search query" hidden>&times;</button>
+        </div>
+        <div class="search-meta">
+          <span id="resultStats" class="search-stats" aria-live="polite">Showing all events</span>
+        </div>
+      </div>
+
+      <!-- Loading Indicator -->
+      <div id="loadingIndicator" class="loading-state" role="status" aria-live="polite" hidden>
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Loading bookstore events...</p>
+      </div>
+
+      <!-- Events List Container -->
+      <div id="eventsContainer" class="events-container" aria-live="polite">
+        <!-- Rendered dynamically by script.js -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="empty-state" hidden>
+        <div class="empty-icon" aria-hidden="true">&#9749;</div>
+        <h3 class="empty-title">No data found</h3>
+        <p class="empty-message" id="emptyMessageText">No matching bookstore events found. Try adjusting your search query or add a new event using the form.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer" role="contentinfo">
+    <div class="container footer-content">
+      <p>&copy; 2026 Chapter &amp; Verse Independent Booksellers &bull; Staff Event Operations POC (Ticket ENG-18072)</p>
+      <p class="footer-note">Crafted with semantic HTML5, pure CSS, and vanilla JavaScript. Offline-ready via LocalStorage.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
